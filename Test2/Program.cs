@@ -8,35 +8,32 @@ namespace Test2
 {
     class Program
     {
-        class File
+        abstract class File
         {
             protected string name;
             protected string extention;
             protected string size;
 
-            public File()
-            {
+            public File() { }
 
-            }
-
-            public virtual string To_String()
+            public override string ToString()
             {
                 string s = "";
                 s += $"{name}.{extention}({size});";
                 return s;
             }
+
+
+            public abstract void Pars(string str);
         }
 
         class FileTxt : File
         {
             private string content;
-            
-            public FileTxt()
-            {
 
-            }
+            public FileTxt() { }
 
-            public void Pars(string str)
+            public override void Pars(string str)
             {
                 string[] strArr = str.Split(new char[] { ':', '.', ';', '(', ')' });
                 name = strArr[1];
@@ -45,10 +42,10 @@ namespace Test2
                 content = strArr[4];
             }
 
-            public override string To_String()
+            public override string ToString()
             {
-                string s = "Text file\n:";
-                s += base.To_String() + $" {content}";
+                string s = "Text file:\n";
+                s += $"{name}.{extention}({size}); {content}";
                 return s;
             }
         }
@@ -64,21 +61,21 @@ namespace Test2
 
             }
 
-            public void Pars(string str)
+            public override void Pars(string str)
             {
                 string[] strArr = str.Split(new char[] { ':', '.', ';', '(', ')' });
                 name = strArr[1];
-                name+= strArr[2];
+                name += strArr[2];
                 extention = strArr[3];
                 size = strArr[4];
                 resolution = strArr[5];
                 lenght = strArr[6];
             }
 
-            public override string To_String()
+            public override string ToString()
             {
                 string s = "Movies:\n";
-                //s += $"{name}.{extention}({size}); {resolution}; {lenght}";
+                s += $"{name}.{extention}({size}); {resolution}; {lenght}";
                 return s;
             }
         }
@@ -93,7 +90,7 @@ namespace Test2
 
             }
 
-            public void Pars(string str)
+            public override void Pars(string str)
             {
                 string[] strArr = str.Split(new char[] { ':', '.', ';', '(', ')' });
                 name = strArr[1];
@@ -102,9 +99,9 @@ namespace Test2
                 resolution = strArr[4];
             }
 
-            public override string To_String()
+            public override string ToString()
             {
-                string s = "Images:";
+                string s = "Image:";
                 s += $"{name}.{extention}({size}); {resolution}";
                 return s;
             }
@@ -118,26 +115,43 @@ Text:data.txt(12B);Another string
 Text:data1.txt(7B);Yet another string
 Movie:logan.2017.mkv(19GB);1920x1080;2h12m";
 
-            var arr = s.Split();
+            var arr = s.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
             foreach (var item in arr)
             {
+                Console.WriteLine(item);
+            }
+
+            Console.WriteLine();
+
+            List<File> files = new List<File>();
+
+            foreach (var item in arr)
+            {
+                //Console.WriteLine("->" + item);
                 if (item.StartsWith("Image:"))
                 {
-                    new FileImages().Pars(item);
+                    File f = new FileImages();
+                    f.Pars(item);
+                    files.Add(f);
                 }
 
                 if (item.StartsWith("Text:"))
                 {
-                    new FileTxt().Pars(item);
+                    File f = new FileTxt();
+                    f.Pars(item);
+                    files.Add(f);
                 }
 
                 if (item.StartsWith("Movie:"))
                 {
-                    new FileMovies().Pars(item);
+                    File f = new FileMovies();
+                    f.Pars(item);
+                    files.Add(f);
                 }
             }
-            foreach (var item in arr)
-               Console.WriteLine(item);
+            Console.WriteLine("___________");
+            foreach (var file in files)
+                Console.WriteLine(file);
         }
     }
 }
